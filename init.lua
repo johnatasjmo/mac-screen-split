@@ -77,7 +77,7 @@ bindDoubleTap("Right",
 
 -- Up arrow: single = center 50%, double = center 1/3
 bindDoubleTap("Up",
-  function() moveToSamsung(0.25, 0, 0.5, 1) end,
+  function() moveToSamsung(0.2, 0, 0.6, 1) end,
   function() moveToSamsung(1/3, 0, 1/3, 1) end
 )
 
