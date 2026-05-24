@@ -37,29 +37,48 @@ local function moveToSamsung(x, y, w, h)
   ))
 end
 
--- Left 50%
-hs.hotkey.bind({"cmd", "ctrl"}, "Left", function()
-  moveToSamsung(0, 0, 0.5, 1)
-end)
+-- Double-tap detection: tracks last press time per key
+local doubleTapInterval = 0.3 -- seconds
+local lastTap = { Left = 0, Right = 0, Up = 0 }
+local tapTimers = { Left = nil, Right = nil, Up = nil }
 
--- Right 50%
-hs.hotkey.bind({"cmd", "ctrl"}, "Right", function()
-  moveToSamsung(0.5, 0, 0.5, 1)
-end)
+--- Bind a key with single-tap and double-tap actions.
+local function bindDoubleTap(key, singleFn, doubleFn)
+  hs.hotkey.bind({"cmd", "ctrl"}, key, function()
+    local now = hs.timer.secondsSinceEpoch()
+    if tapTimers[key] then
+      tapTimers[key]:stop()
+      tapTimers[key] = nil
+    end
+    if (now - lastTap[key]) < doubleTapInterval then
+      lastTap[key] = 0
+      doubleFn()
+    else
+      lastTap[key] = now
+      tapTimers[key] = hs.timer.doAfter(doubleTapInterval, function()
+        singleFn()
+        tapTimers[key] = nil
+      end)
+    end
+  end)
+end
 
--- Column 1 of 3 (left third)
-hs.hotkey.bind({"cmd", "ctrl"}, "1", function()
-  moveToSamsung(0, 0, 1/3, 1)
-end)
+-- Left arrow: single = left 50%, double = left 1/3
+bindDoubleTap("Left",
+  function() moveToSamsung(0, 0, 0.5, 1) end,
+  function() moveToSamsung(0, 0, 1/3, 1) end
+)
 
--- Column 2 of 3 (center third)
-hs.hotkey.bind({"cmd", "ctrl"}, "2", function()
-  moveToSamsung(1/3, 0, 1/3, 1)
-end)
+-- Right arrow: single = right 50%, double = right 1/3
+bindDoubleTap("Right",
+  function() moveToSamsung(0.5, 0, 0.5, 1) end,
+  function() moveToSamsung(2/3, 0, 1/3, 1) end
+)
 
--- Column 3 of 3 (right third)
-hs.hotkey.bind({"cmd", "ctrl"}, "3", function()
-  moveToSamsung(2/3, 0, 1/3, 1)
-end)
+-- Up arrow: single = center 50%, double = center 1/3
+bindDoubleTap("Up",
+  function() moveToSamsung(0.25, 0, 0.5, 1) end,
+  function() moveToSamsung(1/3, 0, 1/3, 1) end
+)
 
 hs.alert.show("Hammerspoon config loaded")
