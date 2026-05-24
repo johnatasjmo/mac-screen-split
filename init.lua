@@ -62,10 +62,4 @@ hs.hotkey.bind({"cmd", "ctrl"}, "3", function()
   moveToSamsung(2/3, 0, 1/3, 1)
 end)
 
--- Diagnostic: show all screens on reload
-local diag = "Screens:\n"
-for _, s in ipairs(hs.screen.allScreens()) do
-  local tag = (s == hs.screen.mainScreen()) and "MAIN" or "SEC"
-  diag = diag .. s:name() .. " " .. tostring(s:frame()) .. " " .. tag .. "\n"
-end
-hs.alert.show(diag, 8)
+hs.alert.show("Hammerspoon config loaded")
